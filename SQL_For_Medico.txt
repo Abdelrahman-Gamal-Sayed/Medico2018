@@ -1,0 +1,184 @@
+CREATE TABLE [dbo].[AREA] (
+    [AREA_CODE]   INT           NOT NULL,
+    [Governorate] INT           NULL,
+    [AREA_ANAME]  NVARCHAR (50) NULL,
+    [AREA_ENAME]  NVARCHAR (50) NULL,
+    PRIMARY KEY CLUSTERED ([AREA_CODE] ASC)
+);
+
+
+------------------------------------
+
+CREATE TABLE [dbo].[Diagnosis] (
+    [Diagnosis_Code]  INT           IDENTITY (1, 1) NOT NULL,
+    [Diagnosis_ANAME] VARCHAR (500) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [Diagnosis_ENAME] VARCHAR (500) NULL,
+    PRIMARY KEY CLUSTERED ([Diagnosis_Code] ASC)
+);
+
+
+
+-------------------------------------
+
+CREATE TABLE [dbo].[Governorate] (
+    [Governorate_CODE]  INT           NOT NULL,
+    [Governorate_ANAME] NVARCHAR (50) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [Governorate_ENAME] NVARCHAR (50) NULL,
+    PRIMARY KEY CLUSTERED ([Governorate_CODE] ASC)
+);
+
+
+
+---------------------------------------
+
+CREATE TABLE [dbo].[Lab] (
+    [lab_code]  INT           IDENTITY (1, 1) NOT NULL,
+    [lab_aname] VARCHAR (500) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [lab_ename] VARCHAR (500) NULL,
+    PRIMARY KEY CLUSTERED ([lab_code] ASC)
+);
+
+
+----------------------------------------
+CREATE TABLE [dbo].[Medicine] (
+    [Medication_code]  INT            NOT NULL,
+    [Medication_Aname] VARCHAR (1000) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [Medication_Ename] NVARCHAR (50)  NULL,
+    [PACK_SIZE]        INT            NULL,
+    [PACK_PRICE]       INT            NULL,
+    [UNIT_NO]          INT            NULL,
+    [UNIT_PRICE]       INT            NULL,
+    [Medication_FORM]  NVARCHAR (50)  NULL,
+    [Medication_GROUP] VARCHAR (30)   NULL,
+    [COMP_ID]          INT            NULL,
+    [BRANCH_CODE]      INT            NULL,
+    [LIC_TYPE]         VARCHAR (30)   NULL,
+    [DOSAGE_FORM]      VARCHAR (100)  NULL,
+    [M_TYPE]           VARCHAR (30)   NULL,
+    [CON_MED]          VARCHAR (30)   NULL,
+    [ACTIVE]           VARCHAR (1)    NULL,
+    [UPDATE_BY]        VARCHAR (100)  NULL,
+    [UPDATE_DATE]      DATE           NULL,
+    [CREATED_BY]       VARCHAR (100)  NULL,
+    [CREATED_DATE]     DATE           NULL,
+    [GRN_CODE]         VARCHAR (30)   NULL,
+    PRIMARY KEY CLUSTERED ([Medication_code] ASC)
+);
+
+
+
+
+-------------------------------------------
+CREATE TABLE [dbo].[Patient] (
+    [Id]          INT            IDENTITY (1, 1) NOT NULL,
+    [ssn]         VARCHAR (14)   NULL,
+    [ename]       VARCHAR (50)   NULL,
+    [aname]       NVARCHAR (100) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [gender]      NVARCHAR (10)  NULL,
+    [phone]       NVARCHAR (11)  NULL,
+    [DateOfBirth] DATE           NULL,
+    [city]        NVARCHAR (20)  COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [area]        NVARCHAR (20)  COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
+
+
+-------------------------------------------
+CREATE TABLE [dbo].[Ray] (
+    [Ray_code]  INT           IDENTITY (1, 1) NOT NULL,
+    [Ray_Aname] VARCHAR (500) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [Ray_Ename] VARCHAR (500) NULL,
+    CONSTRAINT [PK_Ray] PRIMARY KEY CLUSTERED ([Ray_code] ASC)
+);
+
+
+
+-----------------------------------------------
+CREATE TABLE [dbo].[Re] (
+    [serial]     INT NOT NULL,
+    [Patient_id] INT NOT NULL,
+    PRIMARY KEY CLUSTERED ([serial] ASC)
+);
+
+
+------------------------------------------------
+CREATE TABLE [dbo].[Reserve] (
+    [serial]     INT IDENTITY (1, 1) NOT NULL,
+    [Patient_id] INT NOT NULL,
+    PRIMARY KEY CLUSTERED ([serial] ASC)
+);
+
+
+
+-------------------------------------------------
+CREATE TABLE [dbo].[UserType] (
+    [type_code] INT          IDENTITY (1, 1) NOT NULL,
+    [type_name] VARCHAR (50) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    PRIMARY KEY CLUSTERED ([type_code] ASC)
+);
+--------------------------------------------------
+CREATE TABLE [dbo].[User] (
+    [Id]       INT          IDENTITY (1, 1) NOT NULL,
+    [name]     VARCHAR (50) NULL,
+    [password] VARCHAR (50) NULL,
+    [type]     INT          NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC),
+    FOREIGN KEY ([type]) REFERENCES [dbo].[UserType] ([type_code])
+);
+
+-------------------------------------------------------------
+CREATE TABLE [dbo].[Detection] (
+    [Detection_id]    INT            IDENTITY (1, 1) NOT NULL,
+    [patient_id]      INT            NOT NULL,
+    [detection_date]  DATE           NULL,
+    [detection_notes] VARCHAR (1000) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [new_date]        DATE           NULL,
+    CONSTRAINT [PK_Detection] PRIMARY KEY CLUSTERED ([Detection_id] ASC),
+    FOREIGN KEY ([patient_id]) REFERENCES [dbo].[Patient] ([Id])
+);
+
+
+-----------------------------------------------------
+CREATE TABLE [dbo].[RayDetection] (
+    [ray_code] INT NOT NULL,
+    [det_id]   INT NOT NULL,
+    PRIMARY KEY CLUSTERED ([det_id] ASC, [ray_code] ASC),
+    FOREIGN KEY ([ray_code]) REFERENCES [dbo].[Ray] ([Ray_code])
+);
+
+
+
+------------------------------------------------------
+CREATE TABLE [dbo].[MedicineDetection] (
+    [Med_code]     INT          NOT NULL,
+    [det_id]       INT          NOT NULL,
+    [med_dose]     VARCHAR (20) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    [med_duration] VARCHAR (20) COLLATE Arabic_100_CI_AI_KS_WS NULL,
+    CONSTRAINT [PK_MedicineDetection] PRIMARY KEY CLUSTERED ([Med_code] ASC, [det_id] ASC),
+    FOREIGN KEY ([det_id]) REFERENCES [dbo].[Detection] ([Detection_id]),
+    FOREIGN KEY ([Med_code]) REFERENCES [dbo].[Medicine] ([Medication_code])
+);
+
+
+
+
+-------------------------------------------------------
+CREATE TABLE [dbo].[LabDetection] (
+    [lab_code] INT NOT NULL,
+    [det_id]   INT NOT NULL,
+    PRIMARY KEY CLUSTERED ([det_id] ASC, [lab_code] ASC),
+    FOREIGN KEY ([lab_code]) REFERENCES [dbo].[Lab] ([lab_code]),
+    FOREIGN KEY ([det_id]) REFERENCES [dbo].[Detection] ([Detection_id])
+);
+
+---------------------------------------------------------------
+CREATE TABLE [dbo].[DiagnoseDetection] (
+    [diagnose_id] INT NOT NULL,
+    [det_id]      INT NOT NULL,
+    PRIMARY KEY CLUSTERED ([diagnose_id] ASC, [det_id] ASC),
+    FOREIGN KEY ([diagnose_id]) REFERENCES [dbo].[Diagnosis] ([Diagnosis_Code]),
+    FOREIGN KEY ([det_id]) REFERENCES [dbo].[Detection] ([Detection_id])
+);
+
+------------------------------------------------------------------
